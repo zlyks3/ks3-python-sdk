@@ -39,7 +39,7 @@ def canonical_string(method, bucket="", key="", query_args=None, headers=None, e
         buf += "/%s" % bucket
     buf += "/%s" % urllib.quote_plus(key.encode('utf-8'))
     
-    if query_args:
+    if query_args and "prefix=" not in query_args:
         buf += "?" + query_args
 
     return buf
