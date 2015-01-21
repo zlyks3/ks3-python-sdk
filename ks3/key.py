@@ -254,7 +254,7 @@ class Key(object):
         """
         Upload a file to a key into a bucket on S3.
         """
-        self._send_file_internal(fp, headers=headers, cb=cb, num_cb=num_cb,
+        return self._send_file_internal(fp, headers=headers, cb=cb, num_cb=num_cb,
                                  query_args=query_args,
                                  chunked_transfer=chunked_transfer, size=size)
     def _send_file_internal(self, fp, headers=None, cb=None, num_cb=10,
@@ -337,6 +337,7 @@ class Key(object):
         )
         self.handle_version_headers(resp, force=True)
         self.handle_addl_headers(resp.getheaders())
+        return resp
 
     def set_contents_from_file(self, fp, headers=None, replace=True,
                                cb=None, num_cb=10, policy=None, md5=None,
@@ -503,11 +504,11 @@ class Key(object):
                 if self.bucket.lookup(self.name):
                     return
 
-            self.send_file(fp, headers=headers, cb=cb, num_cb=num_cb,
+            return self.send_file(fp, headers=headers, cb=cb, num_cb=num_cb,
                            query_args=query_args,
                            chunked_transfer=chunked_transfer, size=size)
             # return number of bytes written.
-            return self.size
+            #return self.size
 
     def set_contents_from_filename(self, filename, headers=None, replace=True,
                                    cb=None, num_cb=10, policy=None, md5=None,
