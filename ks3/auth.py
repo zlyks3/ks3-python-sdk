@@ -6,6 +6,26 @@ import hmac
 import time
 import urllib
 
+# query string argument of interest
+qsa_of_interest = ['acl', 'cors', 'defaultObjectAcl', 'location', 'logging',
+                   'partNumber', 'policy', 'requestPayment', 'torrent',
+                   'versioning', 'versionId', 'versions', 'website',
+                   'uploads', 'uploadId', 'response-content-type',
+                   'response-content-language', 'response-expires',
+                   'response-cache-control', 'response-content-disposition',
+                   'response-content-encoding', 'delete', 'lifecycle',
+                   'tagging', 'restore',
+                   # storageClass is a QSA for buckets in Google Cloud Storage.
+                   # (StorageClass is associated to individual keys in S3, but
+                   # having it listed here should cause no problems because
+                   # GET bucket?storageClass is not part of the S3 API.)
+                   'storageClass',
+                   # websiteConfig is a QSA for buckets in Google Cloud
+                   # Storage.
+                   'websiteConfig',
+                   # compose is a QSA for objects in Google Cloud Storage.
+                   'compose']
+
 def canonical_string(method, bucket="", key="", query_args=None, headers=None, expires=None):
     if not headers:
         headers = {}
@@ -39,8 +59,13 @@ def canonical_string(method, bucket="", key="", query_args=None, headers=None, e
         buf += "/%s" % bucket
     buf += "/%s" % urllib.quote_plus(key.encode('utf-8'))
     
-    if query_args and "prefix=" not in query_args:
-        buf += "?" + query_args
+    if query_args:
+        for i in qsa_of_interest:
+            if i in query_args:
+                buf += "?" + query_args
+                break
+    #if query_args and "prefix=" not in query_args:
+    #    buf += "?" + query_args
 
     return buf
 
