@@ -645,7 +645,7 @@ class Key(object):
 
             provider = self.bucket.connection.provider
             self.resp = self.bucket.connection.make_request(
-                'GET', self.bucket.name, self.name, headers,
+                'GET', self.bucket.name, self.name, headers=headers,
                 query_args=query_args)
                 #override_num_retries=override_num_retries)
             if self.resp.status < 199 or self.resp.status > 299:
