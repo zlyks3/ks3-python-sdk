@@ -6,6 +6,17 @@ from hashlib import md5, sha512
 from ks3.compat import encodebytes
 
 
+def merge_headers_by_name(name, headers):
+    """
+    Takes a specific header name and a dict of headers {"name": "value"}.
+    Returns a string of all header values, comma-separated, that match the
+    input header name, case-insensitive.
+
+    """
+    matching_headers = find_matching_headers(name, headers)
+    return ','.join(str(headers[h]) for h in matching_headers
+                    if headers[h] is not None)
+
 def find_matching_headers(name, headers):
     """
     Takes a specific header name and a dict of headers {"name": "value"}.

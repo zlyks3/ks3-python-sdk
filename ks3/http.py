@@ -82,7 +82,7 @@ def make_request(server, port, access_key_id, access_key_secret, method,
         final_headers["Content-Length"] = "0"
     if method.upper() == "POST" and "Content-Length" not in final_headers and not data:
         final_headers["Content-Length"] = str(len(data))
-        
+
     add_auth_header(access_key_id, access_key_secret, final_headers, method,
                     bucket, key, query_args)
 
