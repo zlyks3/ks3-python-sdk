@@ -14,6 +14,7 @@ import ks3
 #from ks3.gs.acl import CannedACLStrings as CannedGSACLStrings
 from ks3.acl import CannedACLStrings as CannedS3ACLStrings
 from ks3.acl import Policy
+import ks3.exception
 
 
 HEADER_PREFIX_KEY = 'header_prefix'

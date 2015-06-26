@@ -1,10 +1,19 @@
 
-from hashlib import sha1
-
 import base64
 import hmac
 import time
 import urllib
+
+from ks3.compat import encodebytes
+
+try:
+    from hashlib import sha1 as sha
+    from hashlib import sha256 as sha256
+except ImportError:
+    import sha
+    sha256 = None
+
+
 
 # query string argument of interest
 qsa_of_interest = ['acl', 'cors', 'defaultObjectAcl', 'location', 'logging',
@@ -70,7 +79,7 @@ def canonical_string(method, bucket="", key="", query_args=None, headers=None, e
     return buf
 
 def encode(secret_access_key, str_to_encode, urlencode=False):
-    b64_hmac = base64.encodestring(hmac.new(secret_access_key, str_to_encode, sha1).digest()).strip()
+    b64_hmac = base64.encodestring(hmac.new(secret_access_key, str_to_encode, sha).digest()).strip()
     if urlencode:
         return urllib.quote_plus(b64_hmac)
     else:
@@ -85,4 +94,5 @@ def add_auth_header(access_key_id, secret_access_key, headers, method, bucket, k
     c_string = canonical_string(method, bucket, key, query_args, headers)
     headers['Authorization'] = \
         "%s %s:%s" % ("KSS", access_key_id, encode(secret_access_key, c_string))
+
 

@@ -1,10 +1,25 @@
+"""
+Some handy utility functions used by several classes.
+"""
 
+import six
 
 from hashlib import md5, sha512
 
-
+from ks3 import provider
 from ks3.compat import encodebytes
 
+def get_utf8_value(value):
+    if not six.PY2 and isinstance(value, bytes):
+        return value
+
+    if not isinstance(value, six.string_types):
+        value = six.text_type(value)
+
+    if isinstance(value, six.text_type):
+        value = value.encode('utf-8')
+
+    return value
 
 def merge_headers_by_name(name, headers):
     """

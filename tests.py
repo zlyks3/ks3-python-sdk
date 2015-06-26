@@ -207,5 +207,13 @@ class TestDeleteObject(unittest.TestCase):
         print bucket.delete_key(test_key)
 
 
+class TestKeyLink(unittest.TestCase):
+    def test_key_link(self):
+        bucket = conn.get_bucket(test_bucket)
+        key = bucket.get_key(test_key)
+        #print key.generate_url(expires_in=1435320559, expires_in_absolute=True)
+        print key.generate_url(expires_in=10000, expires_in_absolute=False)
+
+
 if __name__ == '__main__':
     unittest.main()
