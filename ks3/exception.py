@@ -147,8 +147,9 @@ class StorageResponseError(KS3ServerError):
 class S3ResponseError(StorageResponseError):
     """
     Error in response from S3.
-    """     
-    pass
+    """
+    def __init__(self, status, reason, body=None):
+        super(StorageResponseError, self).__init__(status, reason, body)
 
 
 class StorageCreateError(KS3ServerError):

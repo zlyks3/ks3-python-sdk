@@ -66,8 +66,24 @@ def canonical_string(method, bucket="", key="", query_args=None, headers=None, e
 
     if bucket:
         buf += "/%s" % bucket
-    buf += "/%s" % urllib.quote_plus(key.encode('utf-8'))
-    
+
+    encode_key = urllib.quote_plus(key.encode('utf-8'))
+    # TODO
+    #
+    if '%20' in encode_key:
+       encode_key = encode_key.replace('%20','+')
+
+    if '%2A' in encode_key:
+       encode_key = encode_key.replace('%2A','*')
+
+    if '%7E' in encode_key:
+       encode_key = encode_key.replace('%7E','~')
+
+    if '%2F' in encode_key:
+       encode_key = encode_key.replace('%2F','/')
+
+    buf += "/%s" % encode_key
+
     if query_args:
         for i in qsa_of_interest:
             if i in query_args:

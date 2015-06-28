@@ -64,7 +64,20 @@ def make_request(server, port, access_key_id, access_key_secret, method,
         elif call_fmt == CallingFormat.PATH:
             path += "/%s" % bucket
 
-    path += "/%s" % urllib.quote_plus(key.encode("utf-8"))
+    #TODO
+    encode_key = urllib.quote_plus(key.encode('utf-8'))
+    if '%20' in encode_key:
+       encode_key = encode_key.replace('%20','+')
+
+    if '%2A' in encode_key:
+       encode_key = encode_key.replace('%2A','*')
+
+    if '%7E' in encode_key:
+       encode_key = encode_key.replace('%7E','~')
+
+    if '%2F' in encode_key:
+       encode_key = encode_key.replace('%2F','/')
+    path += "/%s" % encode_key
 
     if query_args:
         #path += "?" + query_args_hash_to_string(query_args)

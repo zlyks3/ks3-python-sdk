@@ -201,7 +201,7 @@ class Bucket(object):
             if response.status == 404:
                 return None, response
             else:
-                raise S3ResponseError(response.status, response.reason, response.body)
+                raise S3ResponseError(response.status, response.reason, None)
 
     def list(self, prefix=None, delimiter=None, marker=None):
         """
