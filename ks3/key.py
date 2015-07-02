@@ -169,7 +169,7 @@ class Key(object):
     def generate_url(self, expires_in, method='GET', headers=None,
                      query_auth=True, force_http=False, response_headers=None,
                      expires_in_absolute=False, version_id=None,
-                     policy=None, reduced_redundancy=False, encrypt_key=False):
+                     policy=None, reduced_redundancy=False, encrypt_key=False,domain=False):
         """
         Generate a URL to access this key.
         """
@@ -191,13 +191,18 @@ class Key(object):
         #    headers[provider.server_side_encryption_header] = 'AES256'
         #headers = merge_meta(headers, self.metadata, provider)
 
-        return self.bucket.connection.generate_url(expires_in, method,
+        url = self.bucket.connection.generate_url(expires_in, method,
                                                    self.bucket.name, self.name,
                                                    headers, query_auth,
                                                    force_http,
                                                    response_headers,
                                                    expires_in_absolute,
                                                    version_id)
+        if domain is True :
+           url = url.replace('http://'+self.bucket.name+'.','http://')
+           url = url.replace('https://'+self.bucket.name+'.','https://')
+        
+        return url
 
     def should_retry(self, response, chunked_transfer=False):
         provider = self.bucket.connection.provider

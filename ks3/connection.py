@@ -308,8 +308,10 @@ class Connection(object):
         encoded_canonical = urllib.quote(b64_hmac, safe='')
         self.calling_format.build_path_base(bucket, key)
         if query_auth:
-            query_part = '?' + self.QueryString % (encoded_canonical, expires,
-                                                   self.access_key_id)
+            encode_ak = self.access_key_id
+            #encode_ak = urllib.quote(self.access_key_id)
+            print 'encode_ak:%s'%encode_ak
+            query_part = '?' + self.QueryString % (encoded_canonical, expires,encode_ak)
         else:
             query_part = ''
         if headers:
