@@ -97,7 +97,7 @@ class Connection(object):
 
     QueryString = 'Signature=%s&Expires=%d&KSSAccessKeyId=%s'
 
-    def __init__(self, access_key_id, access_key_secret, host="kss.ksyun.com",
+    def __init__(self, access_key_id, access_key_secret, host="kssws.ks-cdn.com",
             port=80, provider='kss', security_token=None, profile_name=None, path='/',
             is_secure=False, debug=0, calling_format=SubdomainCallingFormat):
         self.access_key_id = access_key_id
