@@ -580,3 +580,15 @@ class Bucket(object):
         if response.status != 204:
             raise self.connection.provider.storage_response_error(
                 response.status, response.reason, body)
+
+
+class BucketLocation(object):
+    def __init__(self):
+        self.location = ''
+
+    def startElement(self, name, attrs, connection):
+        pass
+
+    def endElement(self, name, current_text, connection):
+        if name == 'LocationConstraint':
+            self.location = current_text

@@ -14,6 +14,7 @@ from ks3 import auth
 from ks3 import handler
 from ks3 import utils
 from ks3.bucket import Bucket
+from ks3.bucket import BucketLocation
 from ks3.bucketlogging import BucketLogging
 from ks3.exception import S3ResponseError, S3CreateError
 from ks3.http import make_request, CallingFormat
@@ -97,7 +98,7 @@ class Connection(object):
 
     QueryString = 'Signature=%s&Expires=%d&KSSAccessKeyId=%s'
 
-    def __init__(self, access_key_id, access_key_secret, host="kssws.ks-cdn.com",
+    def __init__(self, access_key_id, access_key_secret, host="kss.ksyun.com",
             port=80, provider='kss', security_token=None, profile_name=None, path='/',
             is_secure=False, debug=0, calling_format=SubdomainCallingFormat):
         self.access_key_id = access_key_id
@@ -161,6 +162,17 @@ class Connection(object):
 
     def get_bucket(self, bucket_name, headers=None):
         return Bucket(self, bucket_name)
+
+    def get_bucket_location(self, bucket_name):
+        response = self.make_request('GET', bucket_name, query_args='location')
+        body = response.read()
+        if response.status == 200:
+            loc = BucketLocation()
+            h = handler.XmlHandler(loc, self)
+            xml.sax.parseString(body, h)
+            return loc.location
+        else:
+            raise S3ResponseError(response.status, response.reason, body)
 
     def create_bucket(self, bucket_name, headers=None,
                       location=None, policy=None):

@@ -44,6 +44,11 @@ class TestBucket(unittest.TestCase):
         for k in keys:
             print k.name
 
+    # Get bucket location
+    def test_get_bucket_location(self):
+        loc = conn.get_bucket_location(test_bucket)
+        print loc
+
 class TestDeleteBucket(unittest.TestCase):
     """
     test delete bucket
