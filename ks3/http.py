@@ -2,6 +2,7 @@
 import httplib
 import time
 import urllib
+import re
 
 from ks3.auth import canonical_string, add_auth_header
 
@@ -101,4 +102,12 @@ def make_request(server, port, access_key_id, access_key_secret, method,
 
     connection.request(method, path, data, final_headers)
     resp = connection.getresponse()
+    if resp.status >= 300 and resp.status < 400:
+        loc = resp.getheader('location')
+        if loc:
+            reg = re.findall('http[s]{0,1}://(.*?)(:\d+){0,1}/', loc)
+            if reg:
+                new_server = reg[0][0]
+                return make_request(new_server, port, access_key_id, access_key_secret, method, bucket, key, query_args,
+                                    headers, data, metadata, call_fmt, is_secure)
     return resp
