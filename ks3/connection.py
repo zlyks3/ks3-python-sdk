@@ -98,9 +98,12 @@ class Connection(object):
 
     QueryString = 'Signature=%s&Expires=%d&KSSAccessKeyId=%s'
 
-    def __init__(self, access_key_id, access_key_secret, host="kss.ksyun.com",
+    def __init__(self, access_key_id, access_key_secret, host="",
             port=80, provider='kss', security_token=None, profile_name=None, path='/',
             is_secure=False, debug=0, calling_format=SubdomainCallingFormat):
+        """
+        host设置请参考官网文档说明(http://ks3.ksyun.com/doc/api/index.html)中的Region定义
+        """
         self.access_key_id = access_key_id
         self.access_key_secret = access_key_secret
         self.is_secure = is_secure
@@ -132,6 +135,7 @@ class Connection(object):
             self.port = self.provider.port
         if self.provider.host_header:
             self.host_header = self.provider.host_header
+        assert self.host
 
     def make_request(self, method, bucket="", key="", data="",
             headers=None, query_args=None, metadata=None):

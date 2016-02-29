@@ -102,7 +102,7 @@ def make_request(server, port, access_key_id, access_key_secret, method,
 
     connection.request(method, path, data, final_headers)
     resp = connection.getresponse()
-    if resp.status >= 300 and resp.status < 400:
+    if resp.status >= 300 and resp.status < 400 and 'location' == query_args:
         loc = resp.getheader('location')
         if loc:
             reg = re.findall('http[s]{0,1}://(.*?)(:\d+){0,1}/', loc)

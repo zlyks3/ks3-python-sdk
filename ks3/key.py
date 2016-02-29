@@ -4,6 +4,7 @@ import math
 import mimetypes
 import os
 import urllib
+import re
 from hashlib import md5
 
 from ks3.exception import KS3ClientError
