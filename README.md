@@ -16,17 +16,21 @@ git clone http://git.op.ksyun.com/bailingzhou/ks3-python-sdk.git
     python setup.py install
 
 ###创建一个connection
-注：（[AccessKeyID和AccessKeySecret]） 
-AWS_ACCESS_KEY_ID：金山云提供的ACCESS KEY ID   
-AWS_SECRET_ACCESS_KEY：金山云提供的SECRET KEY ID
+注：（[AccessKeyID和AccessKeySecret])
+
+ACCESS_KEY_ID：金山云提供的ACCESS KEY ID
+
+SECRET_ACCESS_KEY：金山云提供的SECRET KEY ID
+
+YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档中心](http://ks3.ksyun.com/doc/api/index.html)
 
     from ks3.connection import Connection
     ak = 'YOUR_ACCESS_KEY'
     sk = 'YOUR_SECRET_KEY'
-    c = Connection(ak, sk)
+    c = Connection(ak, sk, host='YOUR_REGION_ENDPOINT')
 
 ###运行环境
-适用于2.6、2.7、3.3、3.4的Python版本
+适用于2.6、2.7的Python版本
 
 ##安全性
 ###使用场景
@@ -159,6 +163,19 @@ AWS_SECRET_ACCESS_KEY：金山云提供的SECRET KEY ID
 
     b = c.get_bucket(bucket_name)
     keys = b.list()
+
+*列举Bucket内的目录*
+
+    from ks3.prefix import Prefix
+    from ks3.key import Key
+
+    b = c.get_bucket(bucket_name)
+    keys = b.list(delimiter='/')
+    for k in keys:
+        if isinstance(k,Key):
+            print 'file:%s' % k.name
+        elif isinstance(k,Prefix):
+            print 'dir:%s' % k.name
 
 ####Get Object ACL
 *获得Object的acl*

@@ -213,7 +213,7 @@ class Bucket(object):
         """
         A lower-level method for listing contents of a bucket.
         """
-        return self._get_all([('Contents', Key)],
+        return self._get_all([('Contents', Key), ('CommonPrefixes', Prefix)],
                              '', **params)
 
     def _get_all(self, element_map, initial_query_string='',
