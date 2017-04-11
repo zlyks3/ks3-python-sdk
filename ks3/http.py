@@ -79,6 +79,7 @@ def make_request(server, port, access_key_id, access_key_secret, method,
     if '%2F' in encode_key:
        encode_key = encode_key.replace('%2F','/')
     path += "/%s" % encode_key
+    path = path.replace('//', '/%2F')
 
     if query_args:
         #path += "?" + query_args_hash_to_string(query_args)

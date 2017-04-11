@@ -23,7 +23,8 @@ qsa_of_interest = ['acl', 'cors', 'defaultObjectAcl', 'location', 'logging',
                    'response-content-language', 'response-expires',
                    'response-cache-control', 'response-content-disposition',
                    'response-content-encoding', 'delete', 'lifecycle',
-                   'tagging', 'restore',
+                   'tagging', 'restore','notification','thumbnail','queryadp',
+                   'adp','asyntask','querytask','domain',
                    # storageClass is a QSA for buckets in Google Cloud Storage.
                    # (StorageClass is associated to individual keys in S3, but
                    # having it listed here should cause no problems because
@@ -82,7 +83,9 @@ def canonical_string(method, bucket="", key="", query_args=None, headers=None, e
     if '%2F' in encode_key:
        encode_key = encode_key.replace('%2F','/')
 
-    buf += "/%s" % encode_key
+    encode_key = "/%s" % encode_key
+    encode_key = encode_key.replace('//', '/%2F')
+    buf += encode_key
 
     if query_args:
         for i in qsa_of_interest:
