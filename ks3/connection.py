@@ -114,6 +114,8 @@ class Connection(object):
         self.calling_format = calling_format()
         if (is_secure):
             self.protocol = 'https'
+            if self.port == 80:
+                self.port = 443
         else:   
             self.protocol = 'http'
 
@@ -148,7 +150,7 @@ class Connection(object):
 
         resp = make_request(self.host, self.port, self.access_key_id,
                             self.access_key_secret, method, bucket, key,
-                            query_args, headers, data, metadata)
+                            query_args, headers, data, metadata, is_secure=self.is_secure)
         
         return resp
 
