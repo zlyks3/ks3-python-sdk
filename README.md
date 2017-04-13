@@ -2,65 +2,58 @@
 ---
 
 ##开发前准备
+###安装依赖模块
+
+	pip install six
+
+
 ###安装python sdk
 1、通过git下载SDK到本地
-```
-git clone http://git.op.ksyun.com/bailingzhou/ks3-python-sdk.git
-```
+
+	git clone https://github.com/ks3sdk/ks3-python-sdk.git
+
+
 2、进入ks3-python-sdk目录
 
-    cd  ks3-python-sdk
+	cd ks3-python-sdk
 
 3、安装SDK
 
-    python setup.py install
+	python setup.py install
 
-###创建一个connection
-注：（[AccessKeyID和AccessKeySecret])
-
-ACCESS_KEY_ID：金山云提供的ACCESS KEY ID
-
-SECRET_ACCESS_KEY：金山云提供的SECRET KEY ID
-
-YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档中心](http://ks3.ksyun.com/doc/api/index.html)
+###初始化connection
 
     from ks3.connection import Connection
     ak = 'YOUR_ACCESS_KEY'
     sk = 'YOUR_SECRET_KEY'
     c = Connection(ak, sk, host='YOUR_REGION_ENDPOINT')
 
+
+YOUR\_ACCESS\_KEY：金山云提供的ACCESS KEY ID
+
+YOUR\_SECRET\_KEY：金山云提供的SECRET KEY ID
+
+YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [KS3文档中心](https://docs.ksyun.com/read/latest/65/_book/index.html)
+
 ###运行环境
 适用于2.6、2.7的Python版本
 
-##安全性
-###使用场景
-由于在App端明文存储AccessKeyID、AccessKeySecret是极不安全的，因此推荐的使用场景如下图所示：
-
-![](http://androidsdktest21.kssws.ks-cdn.com/ks3-android-sdk-authlistener.png)
-
-###KingSoftS3Client初始化
-- 利用AccessKeyID、AccessKeySecret初始化
-
-对应的初始化代码如下：
-```
-[[KingSoftS3Client initialize] connectWithAccessKey:strAccessKey withSecretKey:strSecretKey];
-
-```
-
 ##SDK介绍及使用
-
 ###资源管理操作
 * [List Buckets](#list-buckets) 列出客户所有的Bucket信息
 * [Create Bucket](#create-bucket) 创建一个新的Bucket
 * [Delete Bucket](#delete-bucket) 删除指定Bucket
 * [Get Bucket ACL](#get-bucket-acl) 获取Bucket的ACL
 * [Put Bucket ACL](#put-bucket-acl) 设置Bucket的ACL
+* [Head Object](#head-object) 获取Object元信息
 * [Get Object](#get-object) 下载Object数据
 * [Put Object](#put-object) 上传Object数据
+* [Delete Object](#delete-object) 删除Object数据
 * [List Objects](#list-objects) 列举Bucket内的Object
 * [Get Object ACL](#get-object-acl) 获得Bucket的acl
 * [Put Object ACL](#put-object-acl) 上传object的acl
 * [Upload Part](#upload-part) 上传分块
+* [Generate URL](#generate-url) 生成下载外链
 
 ###Service操作
 
@@ -69,7 +62,7 @@ YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档�
 *列出客户所有的 Bucket 信息*
 
     buckets = c.get_all_buckets()
-    for b in  buckets:
+    for b in buckets:
         print b.name
 
 ###Bucket操作
@@ -117,12 +110,30 @@ YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档�
 
 ####Put Bucket ACL:
 
-*设置Bucket的ACL
+*设置Bucket的ACL*
   
-    //设置bucket的权限
+    #设置bucket的权限, private or public-read or public-read-write
     b.set_acl("public-read")
 
 ###Object操作
+
+###Head Object:
+*获取Object元信息*
+
+获取Object元数据信息（大小、最后更新时间等）
+
+	from ks3.connection import Connection
+	
+	bucket_name = "YOUR_BUCKET_NAME"
+	key_name = "YOUR_KEY_NAME"
+	b = c.get_bucket(bucket_name)
+	try:
+	    k = b.get_key(key_name)
+	    if k:
+	    	print k.name, k.size, k.last_modified
+	    	#print k.__dict__
+	except:
+		pass # 异常处理
 
 ####Get Object：
 *下载该Object数据*
@@ -134,48 +145,68 @@ YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档�
     bucket_name = "YOUR_BUCKET_NAME"
     key_name = "YOUR_KEY_NAME"
     b = c.get_bucket(bucket_name)
-    k = b.get_key(key_name)
-    s = k.get_contents_as_string()
-    print s
+    try:
+	    k = b.get_key(key_name)
+	    s = k.get_contents_as_string()
+		print s
+    except:
+	    pass # 异常处理
 
 下载object，并且保存到文件中
 
-    k.get_contents_to_filename("/root/KS3SDK_download_test")
+	#保存到文件
+	k.get_contents_to_filename("/tmp/KS3SDK_download_test")
+	#保存到文件句柄
+	f=open("/tmp/test_file","rb")
+	k.set_contents_from_file(f)
 
 ####Put Oobject
 *上传Object数据* 
 
-将指定目录的文件上传
+将指定目录的文件上传，同时可以指定文件ACL
 
     bucket_name = "YOUR_BUCKET_NAME"
     key_name = "YOUR_KEY_NAME"
-     
-    b = c.get_bucket(bucket_name)
-    k = b.new_key(key_name)
-    k.set_contents_from_filename("/root/KS3SDK_upload_test")
+    try: 
+	    b = c.get_bucket(bucket_name)
+	    k = b.new_key(key_name)
+	    #object policy : 'private' or 'public-read'
+	    ret=k.set_contents_from_filename("/root/KS3SDK_upload_test", policy="private")
+	    if ret and ret.status == 200:
+	    	print "上传成功"
+	 except:
+	 	pass #异常处理   
 
 将字符串所谓value上传
 
     k.set_contents_from_string('This is a test of S3')
+    
+####Delete Object
+*删除Object数据*
 
-####List Oobject
-*列举Bucket内的Object*
+	try: 
+		b=conn.get_bucket(YOUR_BUCKET_NAME)
+		b.delete_key(YOUR_KEY_NAME)
+	except:
+ 		pass #异常处理   
+	
+####List Object
+*列举Bucket内的文件或者目录*
 
-    b = c.get_bucket(bucket_name)
-    keys = b.list()
+	from ks3.prefix import Prefix
+	from ks3.key import Key
+	
+	b = c.get_bucket(bucket_name)
+	keys = b.list(delimiter='/')
+	for k in keys:
+	    if isinstance(k,Key):
+	        print 'file:%s' % k.name
+	    elif isinstance(k,Prefix):
+	        print 'dir:%s' % k.name
 
-*列举Bucket内的目录*
+*列举Bucket内指定前缀的文件*
 
-    from ks3.prefix import Prefix
-    from ks3.key import Key
-
-    b = c.get_bucket(bucket_name)
-    keys = b.list(delimiter='/')
-    for k in keys:
-        if isinstance(k,Key):
-            print 'file:%s' % k.name
-        elif isinstance(k,Prefix):
-            print 'dir:%s' % k.name
+    keys = b.list(prefix="PREFIX")
 
 ####Get Object ACL
 *获得Object的acl*
@@ -186,7 +217,8 @@ YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档�
 
 ####Put Object ACL
 
-    b.set_acl("public-read", test_key)
+	#object policy : 'private' or 'public-read'
+	b.set_acl("public-read", test_key)
 
 ####Upload Part：
 *分块上传*
@@ -225,3 +257,26 @@ YOUR_REGION_ENDPOINT: 金山云提供的各个Region的域名,参考 [KS3文档�
      
     # Finish the upload
     >>> mp.complete_upload()
+    
+*获取已上传分块列表*
+
+	bucket = conn.get_bucket(bucket_name)
+	for p in bucket.list_multipart_uploads():
+		print 'uploadId:%s,key:%s' % (p.id, p.key_name)
+		for i in p:
+			print i.part_number, i.size, i.etag, i.last_modified
+
+####Generate URL
+*生成下载外链地址*
+
+对私密属性的文件生成下载外链（该链接具有时效性）
+
+    b = conn.get_bucket(bucket_name)
+    k = b.get_key(obj_key)
+    if k:
+	    url = k.generate_url(60) # 60s 后该链接过期
+	    print url
+
+指定时间过期
+	
+	k.generate_url(1492073594,expires_in_absolute=True) # 1492073594为Unix Time
