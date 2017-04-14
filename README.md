@@ -33,7 +33,7 @@ YOUR\_ACCESS\_KEY：金山云提供的ACCESS KEY ID
 
 YOUR\_SECRET\_KEY：金山云提供的SECRET KEY ID
 
-YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [KS3文档中心](https://docs.ksyun.com/read/latest/65/_book/index.html)
+YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [API接口文档-Region(区域)](https://docs.ksyun.com/read/latest/65/_book/index.html)
 
 ###运行环境
 适用于2.6、2.7的Python版本
@@ -160,7 +160,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 	f=open("/tmp/test_file","rb")
 	k.set_contents_from_file(f)
 
-####Put Oobject
+####Put Object
 *上传Object数据* 
 
 将指定目录的文件上传，同时可以指定文件ACL
@@ -190,7 +190,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 	except:
  		pass #异常处理   
 	
-####List Object
+####List Objects
 *列举Bucket内的文件或者目录*
 
 	from ks3.prefix import Prefix
