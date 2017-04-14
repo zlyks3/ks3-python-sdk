@@ -1,13 +1,13 @@
-#KS3 SDK for python使用指南
+# KS3 SDK for python使用指南
 ---
 
-##开发前准备
-###安装依赖模块
+## 开发前准备
+### 安装依赖模块
 
 	pip install six
 
 
-###安装python sdk
+### 安装python sdk
 1、通过git下载SDK到本地
 
 	git clone https://github.com/ks3sdk/ks3-python-sdk.git
@@ -21,7 +21,7 @@
 
 	python setup.py install
 
-###初始化connection
+### 初始化connection
 
     from ks3.connection import Connection
     ak = 'YOUR_ACCESS_KEY'
@@ -35,11 +35,11 @@ YOUR\_SECRET\_KEY：金山云提供的SECRET KEY ID
 
 YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [API接口文档-Region(区域)](https://docs.ksyun.com/read/latest/65/_book/index.html)
 
-###运行环境
+### 运行环境
 适用于2.6、2.7的Python版本
 
-##SDK介绍及使用
-###资源管理操作
+## SDK介绍及使用
+### 资源管理操作
 * [List Buckets](#list-buckets) 列出客户所有的Bucket信息
 * [Create Bucket](#create-bucket) 创建一个新的Bucket
 * [Delete Bucket](#delete-bucket) 删除指定Bucket
@@ -55,9 +55,9 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 * [Upload Part](#upload-part) 上传分块
 * [Generate URL](#generate-url) 生成下载外链
 
-###Service操作
+### Service操作
 
-####List Buckets：
+#### List Buckets：
 
 *列出客户所有的 Bucket 信息*
 
@@ -65,9 +65,9 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
     for b in buckets:
         print b.name
 
-###Bucket操作
+### Bucket操作
 
-####Create Bucket： 
+#### Create Bucket： 
 
 *创建一个新的Bucket*
 
@@ -78,7 +78,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 
 注：这里如果出现409 conflict错误，说明请求的bucket name有冲突，因为bucket name是全局唯一的
 
-####Delete Bucket:
+#### Delete Bucket:
 
 *删除指定Bucket*
 
@@ -93,7 +93,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
         k.delete()
     c.delete_bucket(bucket_name)
 
-####Get Bucket ACL:
+#### Get Bucket ACL:
 
 *获取Bucket的ACL*
 
@@ -108,16 +108,16 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
     ...   print grant.permission, grant.display_name, grant.email_address, grant.id
     ...
 
-####Put Bucket ACL:
+#### Put Bucket ACL:
 
 *设置Bucket的ACL*
   
     #设置bucket的权限, private or public-read or public-read-write
     b.set_acl("public-read")
 
-###Object操作
+### Object操作
 
-###Head Object:
+### Head Object:
 *获取Object元信息*
 
 获取Object元数据信息（大小、最后更新时间等）
@@ -135,7 +135,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 	except:
 		pass # 异常处理
 
-####Get Object：
+#### Get Object：
 *下载该Object数据*
  
 下载object，并且作为字符串返回
@@ -160,7 +160,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 	f=open("/tmp/test_file","rb")
 	k.set_contents_from_file(f)
 
-####Put Object
+#### Put Object
 *上传Object数据* 
 
 将指定目录的文件上传，同时可以指定文件ACL
@@ -181,7 +181,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 
     k.set_contents_from_string('This is a test of S3')
     
-####Delete Object
+#### Delete Object
 *删除Object数据*
 
 	try: 
@@ -190,7 +190,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 	except:
  		pass #异常处理   
 	
-####List Objects
+#### List Objects
 *列举Bucket内的文件或者目录*
 
 	from ks3.prefix import Prefix
@@ -208,19 +208,19 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 
     keys = b.list(prefix="PREFIX")
 
-####Get Object ACL
+#### Get Object ACL
 *获得Object的acl*
 
     b = c.get_bucket(bucket_name)
     policy = b.get_acl(key_name)
     print policy.to_xml()
 
-####Put Object ACL
+#### Put Object ACL
 
 	#object policy : 'private' or 'public-read'
 	b.set_acl("public-read", test_key)
 
-####Upload Part：
+#### Upload Part：
 *分块上传*
 
 如果你想上传一个大文件，你可以将它分成几个小份，逐个上传，s3会按照顺序把它们合成一个最终的object。整个过程需要几步来完成，下面的demo程序是通过python的FileChunkIO模块来实现的。所以可能需要首先运行pip install FileChunkIO来安装。
@@ -266,7 +266,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 		for i in p:
 			print i.part_number, i.size, i.etag, i.last_modified
 
-####Generate URL
+#### Generate URL
 *生成下载外链地址*
 
 对私密属性的文件生成下载外链（该链接具有时效性）
