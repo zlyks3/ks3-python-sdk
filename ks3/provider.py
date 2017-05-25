@@ -2,16 +2,10 @@
 This class encapsulates the provider-specific header differences.
 """
 
-import os
 import six
 from datetime import datetime
 
 import ks3
-#from ks3 import config
-#from ks3.compat import expanduser
-#from ks3.pyami.config import Config
-#from ks3.gs.acl import ACL
-#from ks3.gs.acl import CannedACLStrings as CannedGSACLStrings
 from ks3.acl import CannedACLStrings as CannedS3ACLStrings
 from ks3.acl import Policy
 import ks3.exception

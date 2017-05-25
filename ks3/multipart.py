@@ -1,6 +1,5 @@
 
 from ks3 import user
-from ks3 import key
 from ks3 import handler
 import xml.sax
 

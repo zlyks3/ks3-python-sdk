@@ -11,8 +11,7 @@ from ks3.user import User
 
 ak = 'YOUR_ACCESS_KEY'
 sk = 'YOUR_SECRET_KEY'
-#conn = Connection(ak, sk, server='test.ks3.ksyun.com')
-conn = Connection(ak, sk)
+conn = Connection(ak, sk,host="")
 test_bucket = 'sdktest123'
 test_key = 'test_key'
 

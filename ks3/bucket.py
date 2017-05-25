@@ -9,7 +9,7 @@ from ks3.acl import Policy, CannedACLStrings
 from ks3.bucketlistresultset import BucketListResultSet
 from ks3.bucketlistresultset import MultiPartUploadListResultSet
 from ks3.bucketlogging import BucketLogging
-from ks3.exception import S3ResponseError, S3CreateError
+from ks3.exception import S3ResponseError
 from ks3.key import Key
 from ks3.multipart import MultiPartUpload, CompleteMultiPartUpload
 from ks3.prefix import Prefix
@@ -64,82 +64,82 @@ class Bucket(object):
                                             response_headers=response_headers,                                   
                                             expires_in_absolute=expires_in_absolute)
 
-    def delete_keys(self, keys, quiet=False, mfa_token=None, headers=None):
-        """
-        Deletes a set of keys using S3's Multi-object delete API. If a
-        VersionID is specified for that key then that version is removed.
-        Returns a MultiDeleteResult Object, which contains Deleted
-        and Error elements for each key you ask to delete.
-        """
-        ikeys = iter(keys)
-        result = MultiDeleteResult(self)
-        provider = self.connection.provider
-        query_args = 'delete'
-
-        def delete_keys2(hdrs):
-            hdrs = hdrs or {}
-            data = u"""<?xml version="1.0" encoding="UTF-8"?>"""
-            data += u"<Delete>"
-            if quiet:
-                data += u"<Quiet>true</Quiet>"
-            count = 0
-            while count < 1000:
-                try:
-                    key = next(ikeys)
-                except StopIteration:
-                    break
-                if isinstance(key, six.string_types):
-                    key_name = key
-                    version_id = None
-                elif isinstance(key, tuple) and len(key) == 2:
-                    key_name, version_id = key
-                elif (isinstance(key, Key) or isinstance(key, DeleteMarker)) and key.name:
-                    key_name = key.name
-                    version_id = key.version_id
-                else:
-                    if isinstance(key, Prefix):
-                        key_name = key.name
-                        code = 'PrefixSkipped'   # Don't delete Prefix
-                    else:
-                        key_name = repr(key)   # try get a string
-                        code = 'InvalidArgument'  # other unknown type
-                    message = 'Invalid. No delete action taken for this object.'
-                    error = Error(key_name, code=code, message=message)
-                    result.errors.append(error)
-                    continue
-                count += 1
-                data += u"<Object><Key>%s</Key>" % xml.sax.saxutils.escape(key_name)
-                if version_id:
-                    data += u"<VersionId>%s</VersionId>" % version_id
-                data += u"</Object>"
-            data += u"</Delete>"
-            if count <= 0:
-                return False  # no more
-            data = data.encode('utf-8')
-            fp = BytesIO(data)
-            md5 = boto.utils.compute_md5(fp)
-            hdrs['Content-MD5'] = md5[1]
-            hdrs['Content-Type'] = 'text/xml'
-            if mfa_token:
-                hdrs[provider.mfa_header] = ' '.join(mfa_token)
-            response = self.connection.make_request('POST', self.name,
-                                                    headers=hdrs,
-                                                    query_args=query_args,
-                                                    data=data)
-            body = response.read()
-            if response.status == 200:
-                h = handler.XmlHandler(result, self)
-                if not isinstance(body, bytes):
-                    body = body.encode('utf-8')
-                xml.sax.parseString(body, h)
-                return count >= 1000  # more?
-            else:
-                raise provider.storage_response_error(response.status,
-                                                      response.reason,
-                                                      body)
-        while delete_keys2(headers):
-            pass
-        return result
+    # def delete_keys(self, keys, quiet=False, mfa_token=None, headers=None):
+    #     """
+    #     Deletes a set of keys using S3's Multi-object delete API. If a
+    #     VersionID is specified for that key then that version is removed.
+    #     Returns a MultiDeleteResult Object, which contains Deleted
+    #     and Error elements for each key you ask to delete.
+    #     """
+    #     ikeys = iter(keys)
+    #     result = MultiDeleteResult(self)
+    #     provider = self.connection.provider
+    #     query_args = 'delete'
+    #
+    #     def delete_keys2(hdrs):
+    #         hdrs = hdrs or {}
+    #         data = u"""<?xml version="1.0" encoding="UTF-8"?>"""
+    #         data += u"<Delete>"
+    #         if quiet:
+    #             data += u"<Quiet>true</Quiet>"
+    #         count = 0
+    #         while count < 1000:
+    #             try:
+    #                 key = next(ikeys)
+    #             except StopIteration:
+    #                 break
+    #             if isinstance(key, six.string_types):
+    #                 key_name = key
+    #                 version_id = None
+    #             elif isinstance(key, tuple) and len(key) == 2:
+    #                 key_name, version_id = key
+    #             elif (isinstance(key, Key) or isinstance(key, DeleteMarker)) and key.name:
+    #                 key_name = key.name
+    #                 version_id = key.version_id
+    #             else:
+    #                 if isinstance(key, Prefix):
+    #                     key_name = key.name
+    #                     code = 'PrefixSkipped'   # Don't delete Prefix
+    #                 else:
+    #                     key_name = repr(key)   # try get a string
+    #                     code = 'InvalidArgument'  # other unknown type
+    #                 message = 'Invalid. No delete action taken for this object.'
+    #                 error = Error(key_name, code=code, message=message)
+    #                 result.errors.append(error)
+    #                 continue
+    #             count += 1
+    #             data += u"<Object><Key>%s</Key>" % xml.sax.saxutils.escape(key_name)
+    #             if version_id:
+    #                 data += u"<VersionId>%s</VersionId>" % version_id
+    #             data += u"</Object>"
+    #         data += u"</Delete>"
+    #         if count <= 0:
+    #             return False  # no more
+    #         data = data.encode('utf-8')
+    #         fp = BytesIO(data)
+    #         md5 = boto.utils.compute_md5(fp)
+    #         hdrs['Content-MD5'] = md5[1]
+    #         hdrs['Content-Type'] = 'text/xml'
+    #         if mfa_token:
+    #             hdrs[provider.mfa_header] = ' '.join(mfa_token)
+    #         response = self.connection.make_request('POST', self.name,
+    #                                                 headers=hdrs,
+    #                                                 query_args=query_args,
+    #                                                 data=data)
+    #         body = response.read()
+    #         if response.status == 200:
+    #             h = handler.XmlHandler(result, self)
+    #             if not isinstance(body, bytes):
+    #                 body = body.encode('utf-8')
+    #             xml.sax.parseString(body, h)
+    #             return count >= 1000  # more?
+    #         else:
+    #             raise provider.storage_response_error(response.status,
+    #                                                   response.reason,
+    #                                                   body)
+    #     while delete_keys2(headers):
+    #         pass
+    #     return result
 
     def get_key(self, key_name, headers=None, version_id=None,
                 response_headers=None, validate=True):
@@ -162,7 +162,7 @@ class Bucket(object):
             query_args_l['versionId'] = version_id
         if response_headers:
             for rk, rv in six.iteritems(response_headers):
-                query_args_l[rk] = urllib.parse.quote(rv)
+                query_args_l[rk] = urllib.quote(rv)
 
         key, resp = self._get_key_internal(key_name, headers, query_args_l)
         return key
@@ -261,9 +261,9 @@ class Bucket(object):
         return '&'.join(pairs)
 
     def set_xml_acl(self, acl_str, key_name='', headers=None, version_id=None,
-                    query_args='acl'):
+                    query_args={'acl': ''}):
         if version_id:
-            query_arg['versionId'] = version_id
+            query_args['versionId'] = version_id
         if not isinstance(acl_str, bytes):
             acl_str = acl_str.encode('utf-8')
         response = self.connection.make_request('PUT', self.name, key_name,

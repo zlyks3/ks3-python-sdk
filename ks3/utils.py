@@ -1,12 +1,11 @@
 """
 Some handy utility functions used by several classes.
 """
-
+import ks3
 import six
 
-from hashlib import md5, sha512
+from hashlib import md5
 
-from ks3 import provider
 from ks3.compat import encodebytes
 
 def get_utf8_value(value):

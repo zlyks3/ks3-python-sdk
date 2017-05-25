@@ -7,7 +7,7 @@
 #  code is at your own risk.
 
 import time
-import urllib, urlparse
+import urllib
 import xml.sax
 
 from ks3 import auth
@@ -15,9 +15,8 @@ from ks3 import handler
 from ks3 import utils
 from ks3.bucket import Bucket
 from ks3.bucket import BucketLocation
-from ks3.bucketlogging import BucketLogging
-from ks3.exception import S3ResponseError, S3CreateError
-from ks3.http import make_request, CallingFormat
+from ks3.exception import S3ResponseError, S3CreateError, KS3ClientError
+from ks3.http import make_request
 from ks3.provider import Provider
 from ks3.resultset import ResultSet
 
@@ -40,7 +39,7 @@ def check_lowercase_bucketname(n):
     True
     """
     if not (n + 'a').islower():
-        raise BotoClientError("Bucket names cannot contain upper-case " \
+        raise KS3ClientError("Bucket names cannot contain upper-case " \
             "characters when using either the sub-domain or virtual " \
             "hosting calling format.")
     return True
@@ -81,7 +80,7 @@ class OrdinaryCallingFormat(_CallingFormat):
         return server
 
     def build_path_base(self, bucket, key=''):
-        key = boto.utils.get_utf8_value(key)
+        key = utils.get_utf8_value(key)
         path_base = '/'
         if bucket:
             path_base += "%s/" % bucket
@@ -100,9 +99,14 @@ class Connection(object):
 
     def __init__(self, access_key_id, access_key_secret, host="",
             port=80, provider='kss', security_token=None, profile_name=None, path='/',
-            is_secure=False, debug=0, calling_format=SubdomainCallingFormat):
+            is_secure=False, debug=0, calling_format=SubdomainCallingFormat, domain_mode=False):
         """
-        host设置请参考官网文档说明(http://ks3.ksyun.com/doc/api/index.html)中的Region定义
+        :param access_key_id: 金山云提供的ACCESS KEY ID
+        :param access_key_secret: 金山云提供的SECRET KEY ID
+        :param host: 请参考官网API文档说明中的Region定义(https://docs.ksyun.com/read/latest/65/_book/index.html)
+        :param port: 请求端口，默认80
+        :param is_secure: 是否启用HTTPS，True:启用  False:关闭
+        :param domain_mode: 是否使用自定义域名访问，True:是 False:否
         """
         self.access_key_id = access_key_id
         self.access_key_secret = access_key_secret
@@ -112,7 +116,8 @@ class Connection(object):
         self.debug = debug
         self.path = path
         self.calling_format = calling_format()
-        if (is_secure):
+        self.domain_mode = domain_mode
+        if (self.is_secure):
             self.protocol = 'https'
             if self.port == 80:
                 self.port = 443
@@ -150,7 +155,7 @@ class Connection(object):
 
         resp = make_request(self.host, self.port, self.access_key_id,
                             self.access_key_secret, method, bucket, key,
-                            query_args, headers, data, metadata, is_secure=self.is_secure)
+                            query_args, headers, data, metadata, is_secure=self.is_secure, domain_mode=self.domain_mode)
         
         return resp
 
@@ -216,84 +221,84 @@ class Connection(object):
         if response.status != 204:
             raise S3ResponseError(response.status, response.reason, body)
 
-    def set_xml_logging(self, logging_str, headers=None):
-        """
-        Set logging on a bucket directly to the given xml string.
+    # def set_xml_logging(self, logging_str, headers=None):
+    #     """
+    #     Set logging on a bucket directly to the given xml string.
+    #
+    #     :type logging_str: unicode string
+    #     :param logging_str: The XML for the bucketloggingstatus which
+    #         will be set.  The string will be converted to utf-8 before
+    #         it is sent.  Usually, you will obtain this XML from the
+    #         BucketLogging object.
+    #
+    #     :rtype: bool
+    #     :return: True if ok or raises an exception.
+    #     """
+    #     body = logging_str
+    #     if not isinstance(body, bytes):
+    #         body = body.encode('utf-8')
+    #     response = self.connection.make_request('PUT', self.name, data=body,
+    #             query_args={'logging':''}, headers=headers)
+    #     body = response.read()
+    #     if response.status == 200:
+    #         return True
+    #     else:
+    #         raise S3ResponseError(response.status, response.reason, body)
 
-        :type logging_str: unicode string
-        :param logging_str: The XML for the bucketloggingstatus which
-            will be set.  The string will be converted to utf-8 before
-            it is sent.  Usually, you will obtain this XML from the
-            BucketLogging object.
+    # def enable_logging(self, target_bucket, target_prefix='',
+    #                    grants=None, headers=None):
+    #     """
+    #     Enable logging on a bucket.
+    #
+    #     :type target_bucket: bucket or string
+    #     :param target_bucket: The bucket to log to.
+    #
+    #     :type target_prefix: string
+    #     :param target_prefix: The prefix which should be prepended to the
+    #         generated log files written to the target_bucket.
+    #
+    #     :type grants: list of Grant objects
+    #     :param grants: A list of extra permissions which will be granted on
+    #         the log files which are created.
+    #
+    #     :rtype: bool
+    #     :return: True if ok or raises an exception.
+    #     """
+    #     if isinstance(target_bucket, Bucket):
+    #         target_bucket = target_bucket.name
+    #     blogging = BucketLogging(target=target_bucket, prefix=target_prefix,
+    #                              grants=grants)
+    #     return self.set_xml_logging(blogging.to_xml(), headers=headers)
+    #
+    # def disable_logging(self, headers=None):
+    #     """
+    #     Disable logging on a bucket.
+    #
+    #     :rtype: bool
+    #     :return: True if ok or raises an exception.
+    #     """
+    #     blogging = BucketLogging()
+    #     return self.set_xml_logging(blogging.to_xml(), headers=headers)
 
-        :rtype: bool
-        :return: True if ok or raises an exception.
-        """
-        body = logging_str
-        if not isinstance(body, bytes):
-            body = body.encode('utf-8')
-        response = self.connection.make_request('PUT', self.name, data=body,
-                query_args={'logging':''}, headers=headers)
-        body = response.read()
-        if response.status == 200:
-            return True
-        else:
-            raise S3ResponseError(response.status, response.reason, body)
-
-    def enable_logging(self, target_bucket, target_prefix='',
-                       grants=None, headers=None):
-        """
-        Enable logging on a bucket.
-
-        :type target_bucket: bucket or string
-        :param target_bucket: The bucket to log to.
-
-        :type target_prefix: string
-        :param target_prefix: The prefix which should be prepended to the
-            generated log files written to the target_bucket.
-
-        :type grants: list of Grant objects
-        :param grants: A list of extra permissions which will be granted on
-            the log files which are created.
-
-        :rtype: bool
-        :return: True if ok or raises an exception.
-        """
-        if isinstance(target_bucket, Bucket):
-            target_bucket = target_bucket.name
-        blogging = BucketLogging(target=target_bucket, prefix=target_prefix,
-                                 grants=grants)
-        return self.set_xml_logging(blogging.to_xml(), headers=headers)
-
-    def disable_logging(self, headers=None):
-        """
-        Disable logging on a bucket.
-
-        :rtype: bool
-        :return: True if ok or raises an exception.
-        """
-        blogging = BucketLogging()
-        return self.set_xml_logging(blogging.to_xml(), headers=headers)
-
-    def get_logging_status(self, headers=None):
-        """
-        Get the logging status for this bucket.
-
-        :rtype: :class:`boto.s3.bucketlogging.BucketLogging`
-        :return: A BucketLogging object for this bucket.
-        """
-        response = self.connection.make_request('GET', self.name,
-                query_args={'logging':''}, headers=headers)
-        body = response.read()
-        if response.status == 200:
-            blogging = BucketLogging()
-            h = handler.XmlHandler(blogging, self)
-            if not isinstance(body, bytes):
-                body = body.encode('utf-8')
-            xml.sax.parseString(body, h)
-            return blogging
-        else:
-            raise S3ResponseError(response.status, response.reason, body)
+    # def get_logging_status(self, headers=None):
+    #     """
+    #     Get the logging status for this bucket.
+    #
+    #     :rtype: :class:`boto.s3.bucketlogging.BucketLogging`
+    #     :return: A BucketLogging object for this bucket.
+    #     """
+    #     response = self.connection.make_request('GET', self.name,
+    #             query_args={'logging':''}, headers=headers)
+    #     body = response.read()
+    #     if response.status == 200:
+    #         blogging = BucketLogging()
+    #         h = handler.XmlHandler(blogging, self)
+    #         if not isinstance(body, bytes):
+    #             body = body.encode('utf-8')
+    #         xml.sax.parseString(body, h)
+    #         return blogging
+    #     else:
+    #         raise S3ResponseError(response.status, response.reason, body)
 
     def generate_url(self, expires_in, method, bucket='', key='', headers=None,
                      query_auth=True, force_http=False, response_headers=None,
@@ -329,7 +334,7 @@ class Connection(object):
             encode_ak = self.access_key_id
             #encode_ak = urllib.quote(self.access_key_id)
             #print 'encode_ak:%s'%encode_ak
-            query_part = '?' + self.QueryString % (encoded_canonical, expires,encode_ak)
+            query_part = '?' + self.QueryString % (encoded_canonical, expires, encode_ak)
         else:
             query_part = ''
         if headers:

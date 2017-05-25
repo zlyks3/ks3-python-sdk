@@ -1,5 +1,5 @@
-
-import hashlib
+import base64
+import email
 import math
 import mimetypes
 import os
@@ -7,12 +7,15 @@ import urllib
 import re
 from hashlib import md5
 
+import binascii
+
+import errno
 from ks3.exception import KS3ClientError
 from ks3.exception import StorageDataError, PleaseRetryException
 from ks3.keyfile import KeyFile
 from ks3.user import User
 from ks3.compat import BytesIO
-from ks3.utils import compute_md5, compute_hash
+from ks3.utils import compute_md5
 from ks3.utils import find_matching_headers, merge_meta, merge_headers_by_name
 
 

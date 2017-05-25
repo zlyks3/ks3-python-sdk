@@ -26,14 +26,15 @@
     from ks3.connection import Connection
     ak = 'YOUR_ACCESS_KEY'
     sk = 'YOUR_SECRET_KEY'
-    c = Connection(ak, sk, host='YOUR_REGION_ENDPOINT')
+    c = Connection(ak, sk, host='YOUR_REGION_ENDPOINT', is_secure=False, domain_mode=False)
 
+*常用参数说明*
 
-YOUR\_ACCESS\_KEY：金山云提供的ACCESS KEY ID
-
-YOUR\_SECRET\_KEY：金山云提供的SECRET KEY ID
-
-YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [API接口文档-Region(区域)](https://docs.ksyun.com/read/latest/65/_book/index.html)
++ ak：金山云提供的ACCESS KEY ID
++ sk：金山云提供的SECRET KEY ID
++ host：金山云提供的各个Region的域名（例 ks3-cn-beijing.ksyun.com）,具体定义可参考 [API接口文档-Region(区域)](https://docs.ksyun.com/read/latest/65/_book/index.html)
++ is_secure：是否通过HTTPS协议访问Ks3，True:启用  False:关闭
++ domain_mode：是否使用自定义域名访问Ks3（host填写自定义域名），True:是 False:否
 
 ### 运行环境
 适用于2.6、2.7的Python版本
@@ -117,7 +118,7 @@ YOUR\_REGION\_ENDPOINT: 金山云提供的各个Region的域名（例 ks3-cn-bei
 
 ### Object操作
 
-### Head Object:
+#### Head Object:
 *获取Object元信息*
 
 获取Object元数据信息（大小、最后更新时间等）

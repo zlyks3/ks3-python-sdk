@@ -4,8 +4,6 @@ import hmac
 import time
 import urllib
 
-from ks3.compat import encodebytes
-
 try:
     from hashlib import sha1 as sha
     from hashlib import sha256 as sha256

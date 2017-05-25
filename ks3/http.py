@@ -4,7 +4,7 @@ import time
 import urllib
 import re
 
-from ks3.auth import canonical_string, add_auth_header
+from ks3.auth import canonical_string, add_auth_header, encode
 
 class CallingFormat:
     PATH = 1
@@ -48,7 +48,7 @@ def get_object_url(age, bucket="", key="", secret_access_key="", access_key_id="
 
 def make_request(server, port, access_key_id, access_key_secret, method, 
                  bucket="", key="", query_args=None, headers=None, data="", 
-                 metadata=None, call_fmt=CallingFormat.PATH, is_secure=False):
+                 metadata=None, call_fmt=CallingFormat.PATH, is_secure=False,domain_mode=False):
     if not headers:
         headers = {}
     #if not query_args:
@@ -57,7 +57,7 @@ def make_request(server, port, access_key_id, access_key_secret, method,
         metadata = {}
 
     path = ""
-    if bucket:
+    if bucket and not domain_mode:
         if call_fmt == CallingFormat.SUBDOMAIN:
             server = "%s.%s" % (bucket, server)
         elif call_fmt == CallingFormat.VANITY:
@@ -82,8 +82,10 @@ def make_request(server, port, access_key_id, access_key_secret, method,
     path = path.replace('//', '/%2F')
 
     if query_args:
-        #path += "?" + query_args_hash_to_string(query_args)
-        path += "?" + query_args
+        if isinstance(query_args, dict):
+            path += "?" + query_args_hash_to_string(query_args)
+        else:
+            path += "?" + query_args
 
     host = "%s:%d" % (server, port)
     
@@ -106,7 +108,7 @@ def make_request(server, port, access_key_id, access_key_secret, method,
     if resp.status >= 300 and resp.status < 400 and 'location' == query_args:
         loc = resp.getheader('location')
         if loc:
-            reg = re.findall('http[s]{0,1}://(.*?)(:\d+){0,1}/', loc)
+            reg = re.findall('http[s]?://(.*?)(:\d+)?/', loc)
             if reg:
                 new_server = reg[0][0]
                 return make_request(new_server, port, access_key_id, access_key_secret, method, bucket, key, query_args,
