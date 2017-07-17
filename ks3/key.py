@@ -345,6 +345,8 @@ class Key(object):
             headers=headers,
             query_args=query_args
         )
+        if resp and resp.status > 299:
+            raise provider.storage_response_error(resp.status, resp.reason, resp.read())
         self.handle_version_headers(resp, force=True)
         self.handle_addl_headers(resp.getheaders())
         return resp
