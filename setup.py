@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "ks3sdk",
-    version = "1.0.5",
+    version = "1.0.6",
     author = "ksc",
     description = (""),
     license = "BSD",
