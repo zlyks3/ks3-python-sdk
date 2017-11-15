@@ -49,7 +49,9 @@ def encode_params(query_args):
     if not query_args:
         return ""
     map_args = {}
-    if isinstance(query_args, str):
+    if isinstance(query_args, dict):
+        map_args = query_args
+    else:
         for param in query_args.split("&"):
             kv = param.split("=", 1)
             k = kv[0]
@@ -58,8 +60,6 @@ def encode_params(query_args):
             else:
                 v = kv[1]
                 map_args[k] = v
-    elif isinstance(query_args, dict):
-        map_args = query_args
     if not map_args:
         return ""
     sorted_keys = map_args.keys()
