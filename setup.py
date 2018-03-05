@@ -8,13 +8,15 @@ with open('README.md', 'rb') as f:
 
 setup(
     name='ks3sdk',
-    version='1.0.6',
+    version='1.0.7',
     description='Kingsoft Standard Storage Service SDK',
     long_description=readme,
     packages=['ks3'],
     install_requires=['six'],
     include_package_data=True,
     url='https://github.com/ks3sdk/ks3-python-sdk',
+    author='ksc_ks3',
+    author_email='ksc_ks3@kingsoft.com',
     license='MIT',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
